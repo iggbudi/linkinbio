@@ -23,7 +23,7 @@ export async function PUT(
     
     const result = db.prepare(
       'UPDATE links SET title = ?, url = ?, icon = ?, sort_order = ? WHERE id = ? AND umkm_id = ?'
-    ).run(title, url, icon || '🔗', sort_order || 0, linkId, id)
+    ).run(title, url, icon || 'biolink', sort_order || 0, linkId, id)
 
     if (result.changes === 0) {
       return NextResponse.json({ error: 'Link not found' }, { status: 404 })

@@ -2,6 +2,8 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
+import BrandIcon from './BrandIcon'
+import { ICON_OPTIONS, DEFAULT_ICON_SLUG } from '@/lib/icons'
 
 interface Link {
   id?: number
@@ -30,8 +32,6 @@ const THEME_OPTIONS = [
   { value: 'bold', label: 'Bold', description: 'Energetic & eye-catching', preview: 'bg-gray-900 border-yellow-400' },
 ]
 
-const ICON_OPTIONS = ['🔗', '📱', '💬', '🛒', '📦', '📍', '📧', '🌐', '📸', '🎵', '▶️', '💼', '🏠', '📞', '✨', '🎯']
-
 export default function UmkmForm({ mode, initialData }: UmkmFormProps) {
   const router = useRouter()
   const [loading, setLoading] = useState(false)
@@ -45,7 +45,7 @@ export default function UmkmForm({ mode, initialData }: UmkmFormProps) {
   const [links, setLinks] = useState<Link[]>(initialData?.links || [])
 
   function addLink() {
-    setLinks([...links, { title: '', url: '', icon: '🔗', sort_order: links.length }])
+    setLinks([...links, { title: '', url: '', icon: DEFAULT_ICON_SLUG, sort_order: links.length }])
   }
 
   function removeLink(index: number) {
@@ -240,17 +240,22 @@ export default function UmkmForm({ mode, initialData }: UmkmFormProps) {
             {links.map((link, index) => (
               <div key={index} className="flex items-start gap-3 p-3 bg-gray-50 rounded-lg">
                 <div className="flex-1 grid grid-cols-1 sm:grid-cols-3 gap-3">
-                  <div>
-                    <select
-                      value={link.icon}
-                      onChange={(e) => updateLink(index, 'icon', e.target.value)}
-                      className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
-                    >
-                      {ICON_OPTIONS.map(icon => (
-                        <option key={icon} value={icon}>{icon}</option>
-                      ))}
-                    </select>
-                  </div>
+                   <div>
+                     <div className="flex items-center gap-2">
+                       <div className="w-9 h-9 flex-shrink-0 flex items-center justify-center bg-white border border-gray-200 rounded-lg">
+                         <BrandIcon slug={link.icon} className="w-5 h-5" />
+                       </div>
+                       <select
+                         value={link.icon}
+                         onChange={(e) => updateLink(index, 'icon', e.target.value)}
+                         className="flex-1 px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+                       >
+                         {ICON_OPTIONS.map(opt => (
+                           <option key={opt.slug} value={opt.slug}>{opt.label}</option>
+                         ))}
+                       </select>
+                     </div>
+                   </div>
                   <div>
                     <input
                       type="text"

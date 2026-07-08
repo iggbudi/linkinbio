@@ -1,4 +1,5 @@
 import { UmkmWithLinks } from '@/lib/types'
+import BrandIcon from '@/components/BrandIcon'
 
 export default function BoldTheme({ umkm }: { umkm: UmkmWithLinks }) {
   return (
@@ -53,8 +54,8 @@ export default function BoldTheme({ umkm }: { umkm: UmkmWithLinks }) {
               className="group block w-full px-6 py-[17px] bg-gray-900/90 hover:bg-gradient-to-r hover:from-yellow-400 hover:to-orange-400 rounded-2xl transition-all duration-150 border-2 border-gray-800 hover:border-yellow-400 active:scale-[0.985] hover:scale-[1.015] hover:shadow-2xl hover:shadow-yellow-500/25 touch-manipulation"
             >
               <span className="flex items-center justify-center gap-3 text-white group-hover:text-gray-950 font-extrabold text-[15px] tracking-[-0.2px]">
-                <span className="text-2xl transition-transform group-hover:scale-110 group-hover:-rotate-6">
-                  {link.icon}
+                <span className="inline-flex items-center justify-center w-5 h-5 flex-shrink-0">
+                  <BrandIcon slug={link.icon} className="w-5 h-5" color="#facc15" />
                 </span>
                 <span>{link.title}</span>
               </span>

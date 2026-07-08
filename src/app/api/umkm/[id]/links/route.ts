@@ -43,7 +43,7 @@ export async function POST(
 
     const result = db.prepare(
       'INSERT INTO links (umkm_id, title, url, icon, sort_order) VALUES (?, ?, ?, ?, ?)'
-    ).run(id, title, url, icon || '🔗', sort_order || 0)
+    ).run(id, title, url, icon || 'biolink', sort_order || 0)
 
     const newLink = db.prepare('SELECT * FROM links WHERE id = ?').get(result.lastInsertRowid)
     return NextResponse.json(newLink, { status: 201 })
