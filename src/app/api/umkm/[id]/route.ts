@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getDb } from '@/lib/db'
 import { isAuthenticated } from '@/lib/auth'
+import { isValidHttpUrl } from '@/lib/validate'
 
 export async function GET(
   request: NextRequest,
@@ -41,6 +42,11 @@ export async function PUT(
     // Validate slug format
     if (!/^[a-z0-9-]+$/.test(slug)) {
       return NextResponse.json({ error: 'Slug must contain only lowercase letters, numbers, and hyphens' }, { status: 400 })
+    }
+
+    // Validate photo URL if provided
+    if (photo && !isValidHttpUrl(photo)) {
+      return NextResponse.json({ error: 'Photo must be a valid http(s) URL' }, { status: 400 })
     }
 
     const db = getDb()

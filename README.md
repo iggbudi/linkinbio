@@ -96,9 +96,15 @@ src/
 
 ## 🔐 Keamanan
 
-- Password admin disimpan di `.env`
-- `.env` dan file database diabaikan di `.gitignore`
-- Tidak ada registrasi publik (single admin)
+- Password admin **wajib** di-set via `ADMIN_PASSWORD` di `.env`. Tanpa itu, login akan ditolak (tidak ada default password).
+- Login dilindungi **rate limiting**: maksimal 5 percobaan per IP, kemudian dikunci 15 menit.
+- URL foto profil divalidasi — hanya `http(s)` yang diperbolehkan (menolak `javascript:`, `data:`, dll).
+- Semua API mutasi (create/update/delete UMKM & link) memerlukan cookie auth.
+- Cookie auth `httpOnly` + `sameSite: lax`, dan `secure` di production.
+- `.env` dan file database diabaikan di `.gitignore`.
+- Tidak ada registrasi publik (single admin).
+
+> ⚠️ **Catatan deploy**: Database menggunakan `better-sqlite3` (sinkron, filesystem). Cocok untuk VPS / Node server. **Tidak direkomendasikan untuk serverless (Vercel)** tanpa penyesuaian storage.
 
 ## 📦 Build untuk Production
 
