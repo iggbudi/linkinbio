@@ -40,6 +40,7 @@ export function getBrandIcon(slug: string): BrandIcon | null {
 
 // Curated list for Indonesian UMKM (Linktree-style)
 export const ICON_OPTIONS = [
+  { slug: 'homepage', label: 'Website' },
   { slug: 'biolink', label: 'Link' },
   { slug: 'whatsapp', label: 'WhatsApp' },
   { slug: 'instagram', label: 'Instagram' },
@@ -59,4 +60,4 @@ export const ICON_OPTIONS = [
   { slug: 'github', label: 'GitHub' },
 ]
 
-export const DEFAULT_ICON_SLUG = 'biolink'
+export const DEFAULT_ICON_SLUG = 'homepage'
