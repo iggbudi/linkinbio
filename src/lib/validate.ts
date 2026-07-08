@@ -11,3 +11,13 @@ export function isValidHttpUrl(value: string): boolean {
     return false
   }
 }
+
+/**
+ * Validates a photo value: either a safe http(s) URL or a locally
+ * uploaded path under /uploads/.
+ */
+export function isValidPhoto(value: string): boolean {
+  if (value.startsWith('/uploads/')) return true
+  return isValidHttpUrl(value)
+}
+

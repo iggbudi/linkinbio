@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getDb } from '@/lib/db'
 import { isAuthenticated } from '@/lib/auth'
-import { isValidHttpUrl } from '@/lib/validate'
+import { isValidPhoto } from '@/lib/validate'
 
 export async function GET(
   request: NextRequest,
@@ -45,7 +45,7 @@ export async function PUT(
     }
 
     // Validate photo URL if provided
-    if (photo && !isValidHttpUrl(photo)) {
+    if (photo && !isValidPhoto(photo)) {
       return NextResponse.json({ error: 'Photo must be a valid http(s) URL' }, { status: 400 })
     }
 

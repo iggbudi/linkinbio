@@ -10,6 +10,7 @@ interface Umkm {
   description: string
   theme: string
   created_at: string
+  total_clicks: number
 }
 
 export default function AdminDashboard() {
@@ -110,6 +111,9 @@ export default function AdminDashboard() {
                     </span>
                     <span>
                       📅 {new Date(umkm.created_at).toLocaleDateString('id-ID')}
+                    </span>
+                    <span className="flex items-center gap-1">
+                      👆 {umkm.total_clicks || 0} klik
                     </span>
                   </div>
                   

@@ -1,5 +1,17 @@
+'use client'
+
 import { UmkmWithLinks } from '@/lib/types'
 import BrandIcon from '@/components/BrandIcon'
+
+function trackClick(umkmId: number, linkId: number) {
+  const url = `/api/umkm/${umkmId}/links/${linkId}/click`
+  try {
+    navigator.sendBeacon(url, new Blob([JSON.stringify({})], { type: 'application/json' }))
+  } catch {
+    // ignore — analytics must never break navigation
+  }
+}
+
 
 export default function WarmTheme({ umkm }: { umkm: UmkmWithLinks }) {
   return (
@@ -47,6 +59,7 @@ export default function WarmTheme({ umkm }: { umkm: UmkmWithLinks }) {
               href={link.url}
               target="_blank"
               rel="noopener noreferrer"
+              onClick={() => trackClick(umkm.id, link.id)}
               className="group block w-full px-5 py-[17px] bg-white/90 hover:bg-white rounded-2xl transition-all duration-150 border border-amber-200 hover:border-amber-300 shadow-sm hover:shadow-md active:scale-[0.985] hover:scale-[1.01] touch-manipulation"
             >
               <span className="flex items-center justify-center gap-3 text-amber-900 group-hover:text-amber-700 font-medium text-[15px]">

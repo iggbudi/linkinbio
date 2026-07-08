@@ -1,3 +1,5 @@
+'use client'
+
 import { UmkmWithLinks } from '@/lib/types'
 import CleanTheme from './themes/CleanTheme'
 import WarmTheme from './themes/WarmTheme'

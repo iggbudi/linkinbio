@@ -10,7 +10,14 @@ export async function GET(
   try {
     const { id } = await params
     const db = getDb()
-    const links = db.prepare('SELECT * FROM links WHERE umkm_id = ? ORDER BY sort_order, id').all(id)
+    const links = db.prepare(
+      `SELECT l.*, COALESCE(c.cnt, 0) AS click_count
+       FROM links l
+       LEFT JOIN (SELECT link_id, COUNT(*) AS cnt FROM clicks GROUP BY link_id) c
+         ON c.link_id = l.id
+       WHERE l.umkm_id = ?
+       ORDER BY l.sort_order, l.id`
+    ).all(id)
     return NextResponse.json(links)
   } catch {
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })

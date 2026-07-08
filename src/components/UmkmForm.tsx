@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import BrandIcon from './BrandIcon'
+import ThemeRenderer from './ThemeRenderer'
 import { ICON_OPTIONS, DEFAULT_ICON_SLUG } from '@/lib/icons'
 
 interface Link {
@@ -44,6 +45,29 @@ export default function UmkmForm({ mode, initialData }: UmkmFormProps) {
   const [theme, setTheme] = useState(initialData?.theme || 'clean')
   const [links, setLinks] = useState<Link[]>(initialData?.links || [])
   const [dragIndex, setDragIndex] = useState<number | null>(null)
+  const [uploading, setUploading] = useState(false)
+  const [showPreview, setShowPreview] = useState(false)
+
+  async function handlePhotoUpload(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0]
+    if (!file) return
+    setUploading(true)
+    try {
+      const fd = new FormData()
+      fd.append('file', file)
+      const res = await fetch('/api/upload', { method: 'POST', body: fd })
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}))
+        throw new Error(data.error || 'Upload gagal')
+      }
+      const data = await res.json()
+      setPhoto(data.url)
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Upload gagal')
+    } finally {
+      setUploading(false)
+    }
+  }
 
   function addLink() {
     setLinks([...links, { title: '', url: '', icon: DEFAULT_ICON_SLUG, sort_order: links.length }])
@@ -191,7 +215,7 @@ export default function UmkmForm({ mode, initialData }: UmkmFormProps) {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">URL Foto Profil</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">URL / Upload Foto Profil</label>
             <input
               type="url"
               value={photo}
@@ -199,14 +223,42 @@ export default function UmkmForm({ mode, initialData }: UmkmFormProps) {
               placeholder="https://example.com/photo.jpg"
               className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             />
-            <p className="text-xs text-gray-500 mt-1">Opsional, bisa diisi nanti</p>
+            <div className="flex items-center gap-3 mt-2">
+              <label className="inline-flex items-center gap-2 px-3 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg cursor-pointer text-sm text-gray-700 transition-colors">
+                {uploading ? 'Mengupload...' : '📁 Upload'}
+                <input
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={handlePhotoUpload}
+                  disabled={uploading}
+                />
+              </label>
+              {photo && (
+                <img
+                  src={photo}
+                  alt="Preview"
+                  className="w-10 h-10 rounded-full object-cover border border-gray-200"
+                />
+              )}
+            </div>
+            <p className="text-xs text-gray-500 mt-1">Opsional. JPG/PNG/WEBP/GIF maks 2MB, atau pakai URL.</p>
           </div>
         </div>
       </div>
 
       {/* Theme Selection */}
       <div className="bg-white rounded-xl border border-gray-100 p-6">
-        <h2 className="text-lg font-semibold text-gray-900 mb-4">Pilih Tema</h2>
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-lg font-semibold text-gray-900">Pilih Tema</h2>
+          <button
+            type="button"
+            onClick={() => setShowPreview(true)}
+            className="px-3 py-1.5 text-sm bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100 transition-colors"
+          >
+            👁️ Preview
+          </button>
+        </div>
         
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           {THEME_OPTIONS.map((option) => (
@@ -322,6 +374,9 @@ export default function UmkmForm({ mode, initialData }: UmkmFormProps) {
                     />
                   </div>
                 </div>
+                {typeof (link as Link & { click_count?: number }).click_count === 'number' && (link as Link & { click_count?: number }).click_count! > 0 && (
+                  <p className="text-[11px] text-gray-400 mt-1">👆 {(link as Link & { click_count?: number }).click_count} klik</p>
+                )}
                 <button
                   type="button"
                   onClick={() => removeLink(index)}
@@ -352,6 +407,50 @@ export default function UmkmForm({ mode, initialData }: UmkmFormProps) {
           {loading ? 'Menyimpan...' : mode === 'create' ? 'Buat Halaman' : 'Simpan Perubahan'}
         </button>
       </div>
+
+      {/* Theme Preview Modal */}
+      {showPreview && (
+        <div className="fixed inset-0 z-[100] bg-black/60 flex items-center justify-center p-4" onClick={() => setShowPreview(false)}>
+          <div
+            className="w-full max-w-md max-h-[90vh] overflow-y-auto rounded-2xl bg-white"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="sticky top-0 flex items-center justify-between px-4 py-3 bg-white border-b border-gray-100">
+              <span className="text-sm font-medium text-gray-700">Preview Tema: {theme}</span>
+              <button
+                type="button"
+                onClick={() => setShowPreview(false)}
+                className="px-3 py-1.5 text-sm text-gray-600 hover:bg-gray-100 rounded-lg"
+              >
+                ✕ Tutup
+              </button>
+            </div>
+            <ThemeRenderer
+              umkm={{
+                id: initialData?.id ?? 0,
+                slug: slug || 'preview',
+                name: name || 'Nama UMKM',
+                description: description || 'Deskripsi singkat UMKM Anda.',
+                photo: photo || null,
+                theme: theme as 'clean' | 'warm' | 'bold',
+                created_at: '',
+                updated_at: '',
+                links: links
+                  .filter((l) => l.title && l.url)
+                  .map((l, i) => ({
+                    id: l.id ?? i + 1,
+                    umkm_id: initialData?.id ?? 0,
+                    title: l.title,
+                    url: l.url,
+                    icon: l.icon || DEFAULT_ICON_SLUG,
+                    sort_order: i,
+                    created_at: '',
+                  })),
+              }}
+            />
+          </div>
+        </div>
+      )}
     </form>
   )
 }

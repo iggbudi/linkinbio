@@ -1,12 +1,22 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getDb } from '@/lib/db'
 import { isAuthenticated } from '@/lib/auth'
-import { isValidHttpUrl } from '@/lib/validate'
+import { isValidPhoto } from '@/lib/validate'
 
 export async function GET() {
   try {
     const db = getDb()
-    const umkm = db.prepare('SELECT * FROM umkm ORDER BY created_at DESC').all()
+    const umkm = db.prepare(
+      `SELECT u.*, COALESCE(c.cnt, 0) AS total_clicks
+       FROM umkm u
+       LEFT JOIN (
+         SELECT l.umkm_id, COUNT(*) AS cnt
+         FROM clicks cl
+         JOIN links l ON l.id = cl.link_id
+         GROUP BY l.umkm_id
+       ) c ON c.umkm_id = u.id
+       ORDER BY u.created_at DESC`
+    ).all()
     return NextResponse.json(umkm)
   } catch {
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
@@ -32,7 +42,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Validate photo URL if provided
-    if (photo && !isValidHttpUrl(photo)) {
+    if (photo && !isValidPhoto(photo)) {
       return NextResponse.json({ error: 'Photo must be a valid http(s) URL' }, { status: 400 })
     }
 

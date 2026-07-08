@@ -41,5 +41,14 @@ function initDb(db: Database.Database) {
 
     CREATE INDEX IF NOT EXISTS idx_links_umkm_id ON links(umkm_id);
     CREATE INDEX IF NOT EXISTS idx_umkm_slug ON umkm(slug);
+
+    CREATE TABLE IF NOT EXISTS clicks (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      link_id INTEGER NOT NULL,
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+      FOREIGN KEY (link_id) REFERENCES links(id) ON DELETE CASCADE
+    );
+
+    CREATE INDEX IF NOT EXISTS idx_clicks_link_id ON clicks(link_id);
   `)
 }

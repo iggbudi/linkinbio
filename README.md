@@ -84,6 +84,17 @@ Buka [http://localhost:3000](http://localhost:3000)
 - **Halaman langsung aktif**: UMKM baru bisa diakses tanpa rebuild (`dynamicParams = true`).
 - **Icon brand**: pakai [Simple Icons](https://simpleicons.org) (WhatsApp, Instagram, Shopee, Gojek, Grab, dll).
 
+## 🖼️ Upload & Preview
+
+- **Upload foto lokal**: tombol upload di form (JPG/PNG/WEBP/GIF, maks 2 MB) → tersimpan di `public/uploads/` (di-gitignore). Masih bisa pakai URL eksternal.
+- **Preview tema**: tombol 👁️ Preview di form menampilkan tampilan langsung tema yang dipilih dengan data form saat ini.
+
+## 📊 Analytics
+
+- Setiap klik link pada halaman publik tercatat (via `sendBeacon` ke `POST /api/umkm/[id]/links/[linkId]/click`).
+- Jumlah klik per link tampil di form edit, dan total klik per UMKM tampil di dashboard admin.
+- Data disimpan di tabel `clicks` (relasi ke `links`).
+
 ## 📁 Struktur Project
 
 ```

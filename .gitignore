@@ -39,3 +39,6 @@ next-env.d.ts
 /data/*.db-shm
 /data/*.db-wal
 /data/*.db-journal
+
+# uploaded images (local)
+/public/uploads/
