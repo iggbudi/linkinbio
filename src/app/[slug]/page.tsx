@@ -9,6 +9,9 @@ export async function generateStaticParams() {
   return umkms.map((u) => ({ slug: u.slug }))
 }
 
+// Allow newly created UMKM to be served on-demand without a rebuild.
+export const dynamicParams = true
+
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params
   const db = getDb()

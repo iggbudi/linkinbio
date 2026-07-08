@@ -53,7 +53,7 @@ Buat file `.env` di root project:
 ADMIN_PASSWORD=rahasia123
 ```
 
-> **Default saat clone**: `admin123` (ubah segera!)
+> **Wajib di-set**: tanpa `ADMIN_PASSWORD`, login akan ditolak (tidak ada default password).
 
 ### 3. Jalankan Development Server
 
@@ -76,6 +76,13 @@ Buka [http://localhost:3000](http://localhost:3000)
 4. Tambahkan beberapa link
 5. Simpan
 6. Halaman UMKM bisa diakses di `http://localhost:3000/[slug]`
+
+## ✨ Detail Fitur Link
+
+- **Urut link**: drag-and-drop baris link, atau pakai tombol ↑ / ↓ untuk memindahkan urutan.
+- **Edit tanpa kehilangan data**: link di-reconcile (update yang ada, insert baru, hapus yang dihilangkan) lewat satu request `PUT /api/umkm/[id]/links` — ID link tetap stabil.
+- **Halaman langsung aktif**: UMKM baru bisa diakses tanpa rebuild (`dynamicParams = true`).
+- **Icon brand**: pakai [Simple Icons](https://simpleicons.org) (WhatsApp, Instagram, Shopee, Gojek, Grab, dll).
 
 ## 📁 Struktur Project
 

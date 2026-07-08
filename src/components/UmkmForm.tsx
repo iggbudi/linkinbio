@@ -43,6 +43,7 @@ export default function UmkmForm({ mode, initialData }: UmkmFormProps) {
   const [photo, setPhoto] = useState(initialData?.photo || '')
   const [theme, setTheme] = useState(initialData?.theme || 'clean')
   const [links, setLinks] = useState<Link[]>(initialData?.links || [])
+  const [dragIndex, setDragIndex] = useState<number | null>(null)
 
   function addLink() {
     setLinks([...links, { title: '', url: '', icon: DEFAULT_ICON_SLUG, sort_order: links.length }])
@@ -55,6 +56,14 @@ export default function UmkmForm({ mode, initialData }: UmkmFormProps) {
   function updateLink(index: number, field: keyof Link, value: string | number) {
     const updated = [...links]
     updated[index] = { ...updated[index], [field]: value }
+    setLinks(updated)
+  }
+
+  function moveLink(from: number, to: number) {
+    if (to < 0 || to >= links.length) return
+    const updated = [...links]
+    const [moved] = updated.splice(from, 1)
+    updated.splice(to, 0, moved)
     setLinks(updated)
   }
 
@@ -91,23 +100,24 @@ export default function UmkmForm({ mode, initialData }: UmkmFormProps) {
       const umkmData = await umkmRes.json()
       const umkmId = umkmData.id
 
-      // Handle links
-      if (mode === 'edit' && initialData?.links) {
-        // Delete existing links
-        for (const link of initialData.links) {
-          await fetch(`/api/umkm/${umkmId}/links/${link.id}`, { method: 'DELETE' })
-        }
-      }
+      // Reconcile links in a single request (upsert + delete missing).
+      const payloadLinks = links.map((link, index) => ({
+        ...(link.id ? { id: link.id } : {}),
+        title: link.title,
+        url: link.url,
+        icon: link.icon || DEFAULT_ICON_SLUG,
+        sort_order: index,
+      }))
 
-      // Create new links
-      for (const link of links) {
-        if (link.title && link.url) {
-          await fetch(`/api/umkm/${umkmId}/links`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(link),
-          })
-        }
+      const linksRes = await fetch(`/api/umkm/${umkmId}/links`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ links: payloadLinks }),
+      })
+
+      if (!linksRes.ok) {
+        const data = await linksRes.json().catch(() => ({}))
+        throw new Error(data.error || 'Gagal menyimpan link')
       }
 
       router.push('/admin')
@@ -238,7 +248,44 @@ export default function UmkmForm({ mode, initialData }: UmkmFormProps) {
         ) : (
           <div className="space-y-3">
             {links.map((link, index) => (
-              <div key={index} className="flex items-start gap-3 p-3 bg-gray-50 rounded-lg">
+              <div
+                key={link.id ?? index}
+                draggable
+                onDragStart={() => setDragIndex(index)}
+                onDragOver={(e) => e.preventDefault()}
+                onDrop={() => {
+                  if (dragIndex !== null && dragIndex !== index) {
+                    moveLink(dragIndex, index)
+                  }
+                  setDragIndex(null)
+                }}
+                onDragEnd={() => setDragIndex(null)}
+                className={`flex items-start gap-2 p-3 bg-gray-50 rounded-lg ${
+                  dragIndex === index ? 'opacity-50 ring-2 ring-blue-300' : ''
+                }`}
+              >
+                {/* Reorder controls */}
+                <div className="flex flex-col gap-1 pt-1">
+                  <button
+                    type="button"
+                    onClick={() => moveLink(index, index - 1)}
+                    disabled={index === 0}
+                    className="px-1.5 py-0.5 text-gray-400 hover:text-gray-700 hover:bg-gray-200 rounded disabled:opacity-30 disabled:cursor-not-allowed text-xs leading-none"
+                    title="Pindah ke atas"
+                  >
+                    ↑
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => moveLink(index, index + 1)}
+                    disabled={index === links.length - 1}
+                    className="px-1.5 py-0.5 text-gray-400 hover:text-gray-700 hover:bg-gray-200 rounded disabled:opacity-30 disabled:cursor-not-allowed text-xs leading-none"
+                    title="Pindah ke bawah"
+                  >
+                    ↓
+                  </button>
+                </div>
+
                 <div className="flex-1 grid grid-cols-1 sm:grid-cols-3 gap-3">
                    <div>
                      <div className="flex items-center gap-2">

@@ -30,3 +30,15 @@ npm run dev      # Start development server
 npm run build    # Build for production
 npm run start    # Start production server
 ```
+
+## Alur Bug Fix / Refactor / Peningkatan (Wajib)
+Setiap kali melakukan perbaikan bug, refactor, atau peningkatan fitur, ikuti alur ini:
+1. **Rencanakan** perubahan (tuliskan rencana singkat sebelum kode).
+2. **Implementasi** perubahan pada kode.
+3. **Security & QA check**: jalankan `npm run build` (wajib lolos type-check) dan uji logika yang berubah.
+4. **Update dokumentasi** yang relevan (README.md, AGENTS.md, komentar kode bila perlu).
+5. **Commit** dengan pesan yang jelas (sebutkan scope: `fix:`, `feat:`, `security:`, `refactor:`).
+6. **Push** ke branch `main` di `https://github.com/iggbudi/linkinbio.git`.
+
+> Catatan: `npm run lint` mungkin gagal karena dependency ESLint corrupt — gunakan `npm run build` sebagai gate type-check utama.
+
